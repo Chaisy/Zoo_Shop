@@ -1,0 +1,67 @@
+Customer:
++ Id:             int       <pk> 
++ Nickname:       varchar
++ Password:       varchar
++ Email:          varchar
++ RoleId:                   <fk Role>
+
+
+Role:
++ Id              int       <pk>
++ Nickname:       varchar
+
+
+Cart:
++ Id:             int        <pk>
++ CustomerId                 <fk Customer>
+
+
+Coupon:
++ Id:             int        <pk>
++ Sale            int
+
+CouponUser:
++ Id:           int           <pk> 
++ CouponId:                   <fk -> Coupon>
++ UserId:                     <fk -> User>
+
+
+
+Logging:
++id              int        <pk>
++CustomerId                 <fk Customer>
+Action           varchar
+
+
+Order:
++ date:           Date
++ Id:             int        <pk> 
++ AmoundPrice:    int
++ GoodId:                    <fk Good>
++ CustomerId:                <fk Customer> 
+
+
+
+Good:
++ Id:              int       <pk> 
++ Title:           varchar
++ GoodTypeId:                <fk GoodType>
++Price:             number
++CategoryOgGood:             <fk CategoryOfGood>
++ AnimalId:                  <fk Animal>
+
+GoodBook:
++ Id:           int           <pk> 
++ CartId:                     <fk -> Cart>
++GoodId:                     <fk -> Good>
+
+OrderGood:
++ Id:           int           <pk> 
++ OrderId:                    <fk -> Order>
++ GoodId:                     <fk -> Good>
+
+
+
+
+
+

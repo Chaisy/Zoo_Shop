@@ -1,0 +1,24 @@
+Not-user -> Registrate User(Customer / Moderator)
+
+Authorization -> User (Customer / Moderator / Admin)
+
+non autorizate:
+- see goods and information
+
+Customer:
+- see goods and information about them
+- add goods to cart
+- create arder
+
+Moderator:
+- CRUD  goods,
+	orders,
+	users,
+	Types od goods
+
+Admin:
+- add Moderators
+- CRUD  Moderators
+	Users
+
+Logging of user actions
