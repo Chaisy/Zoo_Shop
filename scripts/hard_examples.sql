@@ -1,4 +1,4 @@
---Select all goods wiht it's category title.
+--Select all goods wiht it's category title.@
 SELECT 
     g.Id, 
     g.Title, 
@@ -8,7 +8,7 @@ SELECT
     LEFT JOIN CategoriesOfGood c ON g.CategoryOfGoodId = c.Id;
 
 
---Select goods by a specific category.
+--Select goods by a specific category.@
 SELECT
     g.Id,
     g.Title,
@@ -21,7 +21,7 @@ SELECT
 
 
 
---Select coupons of specific user.
+--Select coupons of specific user.@
 SELECT 
     u.Name AS User,
     c.Id AS CouponId,
@@ -32,7 +32,7 @@ SELECT
     
 
 
---Select user role.
+--Select user role.@
 SELECT
     r.Id,
     u.Name,
@@ -41,7 +41,7 @@ SELECT
     FROM Roles r
     JOIN Users u ON u.RoleId = r.Id AND LOWER(u.Name) = LOWER('User Name');
 
---Select goods by a specific animal.
+--Select goods by a specific animal.@
 SELECT
     g.Id,
     g.Title,
@@ -53,7 +53,7 @@ SELECT
     WHERE LOWER(a.Type) = LOWER('Animal Type');
     
 
---Select users by role.
+--Select users by role.@
 SELECT 
     u.Id,
     u.Name,
@@ -80,7 +80,7 @@ SELECT
     JOIN Users u ON c.UserId = u.Id;
     
 
---Select all goods from specific user cart.
+--Select all goods from specific user cart.@
 SELECT 
     u.Name,
     g.Id As GoodId,
@@ -123,7 +123,7 @@ SELECT
 
 
     
---Select firms by specific good.
+--Select firms by specific good.@
 SELECT 
     f.Naming ,
     g.Id AS good_id,
