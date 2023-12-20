@@ -25,11 +25,7 @@ class Database:
 
     @staticmethod
     def get_user(login: str, password: str):
-        query = ("SELECT  Users.Id,"
-                 " Users.Name,"
-                 " Users.Password,"
-                 " Users.Login, "
-                 " Roles.Id "
+        query = ("SELECT  Users.* "
                  "FROM Users "
                  "JOIN Roles ON Users.RoleId = Roles.Id "
                  f" WHERE Users.Login = '{login}' AND Users.Password = '{password}';")
@@ -170,7 +166,7 @@ class Database:
 
         cursor = Database.connection.cursor()
         cursor.execute(query)
-        result = cursor.fetchone()
+        result = cursor.fetchall()
         cursor.close()
 
         return result
@@ -229,6 +225,7 @@ class Database:
         try:
             cursor = Database.connection.cursor()
             cursor.execute(query)
+            Database.connection.commit()
             cursor.close()
         except Exception as e:
             print(e)
@@ -273,15 +270,23 @@ class Database:
     @staticmethod
     def get_user_by_login(login: str):
         query = "SELECT * FROM Users " \
-                f"WHERE Users.Login = '{login}'" \
-                f"AND (Users.RoleId = 1 OR Users.RoleId = 2);"
+                f"WHERE Login = '{login}' AND RoleId != 3;"
 
-        cursor = Database.connection.cursor()
-        cursor.execute(query)
-        result = cursor.fetchone()
-        cursor.close()
+        try:
+            cursor = Database.connection.cursor()
+            cursor.execute(query)
+            result = cursor.fetchone()
+            cursor.close()
+        except Exception as e:
+            print(e)
+            return None
 
-        return result
+        if result is None:
+            return None
+
+        user = User(*result)
+
+        return user
 
     @staticmethod
     def get_good_by_animal(animal_get: str):
@@ -365,7 +370,7 @@ class Database:
 
     @staticmethod
     def add_good(title: str, firm: str, category: str, animal: str):
-        query = f"SELECT f.Id FROM Firms f WHERE f.Naming = {firm};"
+        query = f"SELECT f.Id FROM Firms f WHERE f.Naming = '{firm}';"
         try:
             cursor = Database.connection.cursor()
             cursor.execute(query)
@@ -375,7 +380,7 @@ class Database:
             print(e)
             return None
 
-        query = f"SELECT c.Id, FROM CategoriesOfGood c WHERE c.Title = {category};"
+        query = f"SELECT c.Id FROM CategoriesOfGood c WHERE c.Title = '{category}';"
         try:
             cursor = Database.connection.cursor()
             cursor.execute(query)
@@ -385,7 +390,7 @@ class Database:
             print(e)
             return None
 
-        query = f"SELECT c.Id FROM Animals c WHERE c.Type = {animal};"
+        query = f"SELECT c.Id FROM Animals c WHERE c.Type = '{animal}';"
         try:
             cursor = Database.connection.cursor()
             cursor.execute(query)
@@ -398,8 +403,8 @@ class Database:
         good_id = Database.get_id('Goods')
         if good_id == -1:
             return None
-        query = "INSERT INTO Clients (Id, Title, FirmId, CategoryOfGoodId, AnimalId) " \
-                f"VALUES ({good_id}, '{title}', '{firm_id}', '{category_id}', '{animal_id}');"
+        query = "INSERT INTO Goods (Id, Title, FirmId, CategoryOfGoodId, AnimalId) " \
+                f"VALUES ({good_id}, '{title}', '{firm_id[0]}', '{category_id[0]}', '{animal_id[0]}');"
         try:
             cursor = Database.connection.cursor()
             cursor.execute(query)
@@ -412,7 +417,17 @@ class Database:
 
         good = Good(good_id, title, firm, category, animal)
 
-        return good
+        query = f"SELECT * FROM Goods WHERE Id = {good.id}"
+        try:
+            cursor = Database.connection.cursor()
+            cursor.execute(query)
+            result = cursor.fetchall()
+            cursor.close()
+        except Exception as e:
+            print(e)
+            return None
+
+        return result
 
     @staticmethod
     def edit_client(user: User, login: str, password: str, name: str):
@@ -476,7 +491,7 @@ class Database:
             print(e)
             return None
 
-        user = User(id_=client_id, login=login, password=password, name=name, role=1, coupon=None)
+        user = User(id_=client_id, login=login, password=password, name=name, role=1)
         try:
             Database.add_cart(user)
         except Exception as e:
@@ -536,7 +551,7 @@ class Database:
     def edit_good(title: str, new_title: str, firm: str, category: str, animal: str):
         good = Database.get_good(title)
         if good is None:
-            return None
+            return False
 
         if not new_title.isspace() and new_title != '':
             query = f"UPDATE Goods SET Title = '{new_title}' WHERE Id = {good.id};"
@@ -547,7 +562,7 @@ class Database:
                 cursor.close()
             except Exception as e:
                 print(e)
-                return None
+                return False
 
         if not firm.isspace() and firm != '':
             id_ = Database.get_firm(firm)
@@ -560,7 +575,7 @@ class Database:
                 cursor.close()
             except Exception as e:
                 print(e)
-                return None
+                return False
 
         if not category.isspace() and category != '':
             id_ = Database.get_category(category)
@@ -573,7 +588,7 @@ class Database:
                 cursor.close()
             except Exception as e:
                 print(e)
-                return None
+                return False
 
         if not animal.isspace() and animal != '':
             id_ = Database.get_animal(animal)
@@ -586,9 +601,10 @@ class Database:
                 cursor.close()
             except Exception as e:
                 print(e)
-                return None
+                return False
 
         Database.connection.commit()
+        return True
 
     @staticmethod
     def get_cart(user: User):
@@ -620,6 +636,8 @@ class Database:
             print(e)
             return False
 
+        Database.connection.commit()
+
         return True
 
     @staticmethod
@@ -650,7 +668,7 @@ class Database:
 
         for good in goods:
             order_goods_id = Database.get_id('OrderGoods')
-            query = f"INSERT INTO OrderGoods (Id, OrderId, GoodId) VALUES ({order_goods_id}, {order_id}, {good});"
+            query = f"INSERT INTO OrderGoods (Id, OrderId, GoodId) VALUES ({order_goods_id}, {order_id}, {good[0]});"
             try:
                 cursor = Database.connection.cursor()
                 cursor.execute(query)
@@ -659,11 +677,13 @@ class Database:
                 print(e)
                 return None
 
+        Database.connection.commit()
+
     @staticmethod
     def is_banned(login: str):
         user = Database.get_user_by_login(login)
 
-        if user is None or not user[6]:
+        if user is None or not user.banned:
             return False
         else:
             return True

@@ -96,6 +96,7 @@ def client(user: User):
         os.system('clear')
         print('Hello, ' + emphasis('client') + '!\n')
 
+        # print(user.login)
         if Database.is_banned(user.login):
             print('You were ' + emphasis('banned') + '!\n')
             input('\n')
@@ -166,15 +167,20 @@ def client(user: User):
             print(emphasis('Create order...\n'))
             # animal = input('Enter ' + emphasis('animal(dogs, cats,...)') + ': ')
             goods = Database.add_order(user)
-            headers = ['Id', 'Good', 'Animal']
-            print(tabulate(goods, headers=list(map(emphasis, headers))))
+            print('\nYou were successfully ' + emphasis('create order') + '!')
             input('\n')
 
         elif choice == '5':
             os.system('clear')
             print(emphasis('View good...\n'))
 
+            added = False
+
             while True:
+                if added:
+                    input('')
+                    break
+
                 good_name = input('Enter ' + emphasis('good\'s title') + ': ')
                 good = Database.get_good_specific_name(good_name)
 
@@ -186,8 +192,12 @@ def client(user: User):
                     print('')
                 else:
                     while True:
+                        if added:
+                            input('')
+                            break
+
                         headers = ['Id', 'Good', 'Category']
-                        print(tabulate([good], headers=list(map(emphasis, headers))))
+                        print(tabulate(good, headers=list(map(emphasis, headers))))
 
                         print('\nWhat do you want?\n' +
                               emphasis('1') + ' Add to cart\n' +
@@ -217,6 +227,7 @@ def client(user: User):
                                         break
                                     print('')
                                 else:
+                                    added = True
                                     break
                         elif choice == '2':
                             break
@@ -267,7 +278,7 @@ def moderator(user: User):
             choice = input('Enter ' + emphasis('here: '))
 
             if choice == '1' or choice == '2' or choice == '3' or \
-                    choice == '4' or choice == '5':
+                    choice == '4' or choice == '5' or choice == '6' or choice == '7':
                 break
             else:
                 print(error('\nInvalid data. Try again!'))
@@ -285,6 +296,7 @@ def moderator(user: User):
 
             print(tabulate(clients, headers=list(map(emphasis, headers))))
             input('\n')
+            break
 
         elif choice == '2':
             os.system('clear')
@@ -309,6 +321,8 @@ def moderator(user: User):
             else:
                 print('This client was successfully ' + emphasis('unbanned') + '!')
             input('\n')
+
+
 
         elif choice == '3':
             os.system('clear')
@@ -341,32 +355,68 @@ def moderator(user: User):
                     input('\n')
                     break
 
+        elif choice == '5':
+            os.system('clear')
+            print(emphasis('Create good...\n'))
+
+            new_title = input('Enter ' + emphasis('title') + ': ')
+            firm = input('Enter ' + emphasis('firm') + ': ')
+            category = input('Enter ' + emphasis('category') + ': ')
+            animal = input('Enter ' + emphasis('animal') + ': ')
+
+            goods = Database.add_good(new_title, firm, category, animal)
+            print(goods)
+            headers = ['Id', 'Title', 'Firm', 'Category', 'Animal']
+            print(tabulate(list(goods), headers=list(map(emphasis, headers))))
+            input('\n')
+            break
+
         elif choice == '7':
             break
 
         elif choice == '6':
             os.system('clear')
-            print(emphasis('Edit good\n'))
-
             while True:
-                print('What you don\'t want to change, just ' + emphasis('skip!\n'))
+                good_name = input('Enter ' + emphasis('good\'s title') + ': ')
+                good = Database.get_good_specific_name(good_name)
 
-                username = input('Enter ' + emphasis('title') + ': ')
-                name = input('Enter ' + emphasis('name') + ': ')
-                password = getpass('Enter ' + emphasis('password') + ': ')
-
-                result = Database.edit_client(user, username, password, name)
-
-                if result is None:
+                if good is None:
                     print(error('\nInvalid data. Try again!'))
                     e = input('Do you want exit? (1) ')
                     if e == '1':
                         break
                     print('')
                 else:
-                    print('\nYou were successfully ' + emphasis('edited profile') + '!')
-                    input('\n')
+                    while True:
+                        print(emphasis('Edit good\n'))
+
+                        while True:
+                            print('What you don\'t want to change, just ' + emphasis('skip!\n'))
+
+                            new_title = input('Enter ' + emphasis('new title') + ': ')
+                            firm = input('Enter ' + emphasis('firm') + ': ')
+                            category = input('Enter ' + emphasis('category') + ': ')
+                            animal = input('Enter ' + emphasis('animal') + ': ')
+
+                            result = Database.edit_good(good[0][1], new_title, firm, category, animal)
+
+                            if not result:
+                                print(error('\nInvalid data. Try again!'))
+                                e = input('Do you want exit? (1) ')
+                                if e == '1':
+                                    break
+                                print('')
+                            else:
+                                print('\nYou were successfully ' + emphasis('edited good') + '!')
+                                input('\n')
+                                break
+                        e1 = input('Return to menu? (9) ')
+                        if e1 == '9':
+                            break
                     break
+
+
+
 
 
 def admin(user: User):
@@ -432,7 +482,7 @@ def admin(user: User):
                     name = input('Enter ' + emphasis('name') + ': ')
                     password = getpass('Enter ' + emphasis('password') + ': ')
 
-                    result = Database.edit_client_admin(user, username, password, name)
+                    result = Database.edit_client(user, username, password, name)
 
                     if result is None:
                         print(error('\nInvalid data. Try again!'))
@@ -444,6 +494,9 @@ def admin(user: User):
                         print('\nYou were successfully ' + emphasis('edited profile') + '!')
                         input('\n')
                         break
+                e1 = input('Return to menu? (9) ')
+                if e1 == '9':
+                    break
 
         elif choice == '2':
             os.system('clear')

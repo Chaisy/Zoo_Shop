@@ -1,11 +1,12 @@
 class User:
-    def __init__(self, id_, name, password, login, role, coupon=None):
+    def __init__(self, id_, login, password, name, role, coupon=None, banned=False):
         self.id = id_
         self.name = name
         self.password = password
         self.coupon_id = coupon
         self.role_id = role
         self.login = login
+        self.banned = banned
 
 
 class Role:
